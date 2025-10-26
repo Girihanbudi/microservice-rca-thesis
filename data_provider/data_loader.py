@@ -4,11 +4,40 @@ import pandas as pd
 import os
 import torch
 from torch.utils.data import Dataset, DataLoader
-from sklearn.preprocessing import StandardScaler
 import torch.nn.functional as F
 import warnings
 
 warnings.filterwarnings('ignore')
+
+
+class StandardScaler:
+    """
+    Minimal replacement for sklearn.preprocessing.StandardScaler.
+    Avoids heavy SciPy/Sklearn dependency while providing the few
+    methods this project needs.
+    """
+    def __init__(self):
+        self.mean_ = None
+        self.scale_ = None
+
+    def fit(self, data):
+        arr = np.asarray(data, dtype=np.float64)
+        self.mean_ = arr.mean(axis=0)
+        self.scale_ = arr.std(axis=0)
+        self.scale_[self.scale_ == 0] = 1.0  # prevent divide-by-zero
+        return self
+
+    def transform(self, data):
+        if self.mean_ is None or self.scale_ is None:
+            raise RuntimeError("StandardScaler must be fit before calling transform.")
+        arr = np.asarray(data, dtype=np.float64)
+        return (arr - self.mean_) / self.scale_
+
+    def inverse_transform(self, data):
+        if self.mean_ is None or self.scale_ is None:
+            raise RuntimeError("StandardScaler must be fit before calling inverse_transform.")
+        arr = np.asarray(data, dtype=np.float64)
+        return arr * self.scale_ + self.mean_
 
 drop_num = 10
 

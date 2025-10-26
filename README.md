@@ -13,6 +13,9 @@ We propose a novel approach for root cause analysis using neural Granger causal 
 ## Reproduce RUN
 
 ```
+// create new virtual env
+python3 -m venv ./path-to-new-venv
+
 // virtual env activation
 .\venv\Scripts\activate
 
