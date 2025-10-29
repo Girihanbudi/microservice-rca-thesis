@@ -24,4 +24,40 @@ pip install -r requirements.txt
 
 // run program
 python main.py --root_path ./ --data_path data --root_cause root_cause --trigger_point trigger_point
+
+## Runpod Serverless
+
+The repository includes a `worker.py` entry point so the pipeline can be triggered from a Runpod
+Serverless endpoint. The worker launches the CLI command shown above and returns the captured logs.
+
+1. Build your Runpod image from the project root so `main.py` and `worker.py` are on the container
+   filesystem.
+2. Set the handler to `worker.py`.
+3. Submit jobs with the parameters required by `main.py`. A minimal payload looks like:
+
+```json
+{
+  "input": {
+    "root_path": "./",
+    "data_path": "data/simple_data_2.csv",
+    "root_cause": "service_a",
+    "trigger_point": "service_b"
+  }
+}
+```
+
+Optional fields (`cuda`, `epochs`, `learning_rate`, `optimizer`, `num_workers`, `extra_args`) are
+passed through to the CLI when provided.
+The worker defaults to `--cuda cuda:0`; override with `"cuda": "cpu"` or another device string if needed.
+
+### Build With Docker
+
+A ready-to-use `Dockerfile` is provided. Build and push it before creating the Runpod endpoint:
+
+```bash
+docker build -t <your-registry>/<repo>:run .
+docker push <your-registry>/<repo>:run
+```
+
+Configure the Serverless endpoint to pull that image and execute the default command (`python -u worker.py`).
 ```
