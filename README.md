@@ -1,5 +1,7 @@
 # RUN (AAAI 2024)
 
+[![Runpod](https://api.runpod.io/badge/Girihanbudi/microservice-rca-thesis)](https://console.runpod.io/hub/Girihanbudi/microservice-rca-thesis)
+
 Official code of the [paper](https://arxiv.org/abs/2402.01140) Root Cause Analysis In Microservice Using Neural Granger Causal Discovery .
 
 ## Introduction
@@ -60,4 +62,7 @@ docker push <your-registry>/<repo>:run
 ```
 
 Configure the Serverless endpoint to pull that image and execute the default command (`python -u worker.py`).
+
+```
+
 ```
