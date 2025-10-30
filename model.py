@@ -99,8 +99,17 @@ class DLinear(nn.Module):
    
             seasonal_init, trend_init = self.decompsition(x)
 
-            seasonal_output = torch.zeros([seasonal_init.size(0),seasonal_init.size(1),self.pred_len],dtype=seasonal_init.dtype).to("cuda:0")
-            trend_output = torch.zeros([trend_init.size(0),trend_init.size(1),self.pred_len],dtype=trend_init.dtype).to("cuda:0")
+            device = seasonal_init.device
+            seasonal_output = torch.zeros(
+                [seasonal_init.size(0), seasonal_init.size(1), self.pred_len],
+                dtype=seasonal_init.dtype,
+                device=device,
+            )
+            trend_output = torch.zeros(
+                [trend_init.size(0), trend_init.size(1), self.pred_len],
+                dtype=trend_init.dtype,
+                device=device,
+            )
             
             if self.project:
 
@@ -123,11 +132,28 @@ class DLinear(nn.Module):
         x = x.transpose(1, 2)
 
         seasonal_init, trend_init = self.decompsition(x)
-        seasonal_output = torch.zeros([seasonal_init.size(0),seasonal_init.size(1),self.pred_len],dtype=seasonal_init.dtype).to("cuda:0")
-        trend_output = torch.zeros([trend_init.size(0),trend_init.size(1),self.pred_len],dtype=trend_init.dtype).to("cuda:0")
+        device = seasonal_init.device
+        seasonal_output = torch.zeros(
+            [seasonal_init.size(0), seasonal_init.size(1), self.pred_len],
+            dtype=seasonal_init.dtype,
+            device=device,
+        )
+        trend_output = torch.zeros(
+            [trend_init.size(0), trend_init.size(1), self.pred_len],
+            dtype=trend_init.dtype,
+            device=device,
+        )
         
-        seasonal_output_1 = torch.zeros([seasonal_init.size(0),seasonal_init.size(1),self.seq_len],dtype=seasonal_init.dtype).to("cuda:0")
-        trend_output_1 = torch.zeros([trend_init.size(0),trend_init.size(1),self.seq_len],dtype=trend_init.dtype).to("cuda:0")
+        seasonal_output_1 = torch.zeros(
+            [seasonal_init.size(0), seasonal_init.size(1), self.seq_len],
+            dtype=seasonal_init.dtype,
+            device=device,
+        )
+        trend_output_1 = torch.zeros(
+            [trend_init.size(0), trend_init.size(1), self.seq_len],
+            dtype=trend_init.dtype,
+            device=device,
+        )
         
         for i in range(self.channels):
             seasonal_output[:,i,:] = self.Linear_Seasonal[i](seasonal_init[:,i,:].clone())

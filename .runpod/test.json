@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "smoke_run_cpu",
+      "input": {
+        "input": {
+          "root_path": "./",
+          "data_path": "data/simple_data.csv",
+          "root_cause": "orders_cpu",
+          "trigger_point": "front-end_cpu",
+          "cuda": "cpu",
+          "epochs": 1,
+          "num_workers": 0
+        }
+      },
+      "timeout": 600000
+    }
+  ],
+  "config": {
+    "gpuTypeId": "NVIDIA A10G",
+    "gpuCount": 1,
+    "env": [],
+    "allowedCudaVersions": [
+      "11.8"
+    ]
+  }
+}

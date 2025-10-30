@@ -99,7 +99,9 @@ def main(datafiles):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='RUN')
 
-    parser.add_argument('--cuda', type=str, default="cuda:0")
+    parser.add_argument('--cuda', type=str, default=None,
+                        help='Torch device to run on (e.g. cuda:0 or cpu). '
+                             'Defaults to cuda:0 when available, otherwise cpu.')
     parser.add_argument('--epochs', type=int, default=50)
     parser.add_argument('--learning_rate', type=float, default=0.001)
     parser.add_argument('--optimizer', type=str, default='Adam')
@@ -111,10 +113,26 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    def _select_device(requested_device: str) -> str:
+        """Resolve the requested device into one that PyTorch supports."""
+        if requested_device is None or requested_device.lower() == 'auto':
+            return 'cuda:0' if torch.cuda.is_available() else 'cpu'
+
+        normalized = requested_device.lower()
+        if normalized.startswith('cuda'):
+            if not torch.cuda.is_available():
+                print("CUDA was requested but is unavailable. Falling back to CPU.", file=sys.stderr)
+                return 'cpu'
+            return normalized
+
+        return 'cpu' if normalized == 'cpu' else requested_device
+
+    cuda = _select_device(args.cuda)
+    args.cuda = cuda
+
     nrepochs = args.epochs
     learningrate = args.learning_rate
     optimizername = args.optimizer
-    cuda=args.cuda
     trigger_point = args.trigger_point
     root_cause = args.root_cause
     datafiles = args.root_path + '/' + args.data_path
