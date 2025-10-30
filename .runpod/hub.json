@@ -1,0 +1,109 @@
+{
+  "title": "RUN Root Cause Analysis Worker",
+  "description": "Runpod Serverless handler for the RUN neural Granger causal discovery pipeline.",
+  "type": "serverless",
+  "category": "data-science",
+  "iconUrl": "https://runpod.io/favicon-32x32.png",
+  "config": {
+    "runsOn": "GPU",
+    "containerDiskInGb": 20,
+    "allowedCudaVersions": [
+      "11.8"
+    ],
+    "presets": [
+      {
+        "name": "Simple data smoke test",
+        "defaults": {
+          "root_path": "./",
+          "data_path": "data/simple_data.csv",
+          "root_cause": "orders_cpu",
+          "trigger_point": "front-end_cpu",
+          "cuda": "cpu"
+        }
+      }
+    ],
+    "env": [
+      {
+        "key": "root_path",
+        "input": {
+          "name": "Root Path",
+          "type": "string",
+          "description": "Base directory containing dataset files and configuration.",
+          "default": "./"
+        }
+      },
+      {
+        "key": "data_path",
+        "input": {
+          "name": "Data Path",
+          "type": "string",
+          "description": "Relative path to the CSV file to analyse.",
+          "default": "data/simple_data.csv"
+        }
+      },
+      {
+        "key": "root_cause",
+        "input": {
+          "name": "Root Cause Service",
+          "type": "string",
+          "description": "Service column to evaluate as the hypothesised root cause.",
+          "default": "orders_cpu"
+        }
+      },
+      {
+        "key": "trigger_point",
+        "input": {
+          "name": "Trigger Point",
+          "type": "string",
+          "description": "Downstream service column used as the trigger point.",
+          "default": "front-end_cpu"
+        }
+      },
+      {
+        "key": "cuda",
+        "input": {
+          "name": "Device",
+          "type": "string",
+          "description": "Torch device string such as cuda:0 or cpu.",
+          "default": "cuda:0"
+        }
+      },
+      {
+        "key": "epochs",
+        "input": {
+          "name": "Epochs",
+          "type": "number",
+          "description": "Number of training epochs to run.",
+          "default": 50
+        }
+      },
+      {
+        "key": "learning_rate",
+        "input": {
+          "name": "Learning Rate",
+          "type": "number",
+          "description": "Optimizer learning rate for training.",
+          "default": 0.001
+        }
+      },
+      {
+        "key": "optimizer",
+        "input": {
+          "name": "Optimizer",
+          "type": "string",
+          "description": "Optimizer to use during training (Adam, SGD, etc.).",
+          "default": "Adam"
+        }
+      },
+      {
+        "key": "num_workers",
+        "input": {
+          "name": "Data Loader Workers",
+          "type": "number",
+          "description": "Number of worker processes to use for loading data.",
+          "default": 10
+        }
+      }
+    ]
+  }
+}

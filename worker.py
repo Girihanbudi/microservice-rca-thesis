@@ -80,7 +80,7 @@ def _build_command(payload: Dict[str, Any]) -> List[str]:
     return command
 
 
-def run_runpod_job(event: Dict[str, Any]) -> Dict[str, Any]:
+def handler(event: Dict[str, Any]) -> Dict[str, Any]:
     """
     Execute the RUN pipeline and return structured output for Runpod.
     """
@@ -102,4 +102,4 @@ def run_runpod_job(event: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-runpod.serverless.start({"handler": run_runpod_job})
+runpod.serverless.start({"handler": handler})
