@@ -58,6 +58,7 @@ def handler(event):
 
     # Return structured logs + full file listing
     return {
+        "version": "1.0.0",
         "command": " ".join(shlex.quote(c) for c in command),
         "return_code": process.returncode,
         "stdout": process.stdout,
