@@ -22,8 +22,11 @@ class StandardScaler:
 
     def fit(self, data):
         arr = np.asarray(data, dtype=np.float64)
-        self.mean_ = arr.mean(axis=0)
-        self.scale_ = arr.std(axis=0)
+        self.mean_ = np.nanmean(arr, axis=0)
+        self.scale_ = np.nanstd(arr, axis=0)
+        # Replace fully-missing columns with safe defaults
+        self.mean_ = np.nan_to_num(self.mean_, nan=0.0)
+        self.scale_ = np.nan_to_num(self.scale_, nan=1.0)
         self.scale_[self.scale_ == 0] = 1.0  # prevent divide-by-zero
         return self
 
@@ -31,13 +34,32 @@ class StandardScaler:
         if self.mean_ is None or self.scale_ is None:
             raise RuntimeError("StandardScaler must be fit before calling transform.")
         arr = np.asarray(data, dtype=np.float64)
-        return (arr - self.mean_) / self.scale_
+        arr = np.where(np.isnan(arr), self.mean_, arr)
+        scaled = (arr - self.mean_) / self.scale_
+        return np.nan_to_num(scaled, nan=0.0)
 
     def inverse_transform(self, data):
         if self.mean_ is None or self.scale_ is None:
             raise RuntimeError("StandardScaler must be fit before calling inverse_transform.")
         arr = np.asarray(data, dtype=np.float64)
-        return arr * self.scale_ + self.mean_
+        return np.nan_to_num(arr * self.scale_ + self.mean_, nan=0.0)
+
+
+def _clean_numeric_columns(df, feature_cols):
+    """
+    Replace NaNs/Infs before scaling so the model never sees undefined values.
+    """
+    if not len(feature_cols):
+        return df
+    numeric = df.loc[:, feature_cols].apply(pd.to_numeric, errors='coerce')
+    numeric = numeric.replace([np.inf, -np.inf], np.nan)
+    numeric = numeric.interpolate(method='linear', limit_direction='both', axis=0)
+    col_means = numeric.mean(axis=0)
+    numeric = numeric.fillna(col_means)
+    numeric = numeric.fillna(0.0)
+    df = df.copy()
+    df.loc[:, feature_cols] = numeric
+    return df
 
 drop_num = 10
 
@@ -72,6 +94,8 @@ class Dataset_RCA(Dataset):
         self.scaler = StandardScaler()
         df_raw = pd.read_csv(os.path.join(self.root_path,
                                           self.data_path))
+        cols_data = df_raw.columns[1:]
+        df_raw = _clean_numeric_columns(df_raw, cols_data)
 
         data_len = len(df_raw)
 
@@ -80,15 +104,15 @@ class Dataset_RCA(Dataset):
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
 
-        cols_data = df_raw.columns[1:] 
         df_data = df_raw[cols_data]
 
         train_data = df_data[border1:border2]
         self.scaler.fit(train_data.values)
         data = self.scaler.transform(df_data.values)
 
-        self.data_x = data[border1:border2]
-        self.data_y = data[border1:border2]
+        clean_slice = np.nan_to_num(data, nan=0.0)
+        self.data_x = clean_slice[border1:border2]
+        self.data_y = clean_slice[border1:border2]
 
     def __getitem__(self, index):
         s_begin = index
